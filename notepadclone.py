@@ -56,8 +56,8 @@ def customquit():
         f=open(filename,'r')
         filetext=f.read()
         f.close()
-        maintext=maintext.rstrip()
-        filetext=filetext.rstrip()
+        maintext=maintext.rstrip("\n")
+        filetext=filetext.rstrip("\n")
         if(filetext==maintext):
             r.destroy()
         else:
@@ -200,6 +200,11 @@ def findwindow():
                 rowcount+=1
         textarea.focus_force()
         textarea.mark_set("insert","%d.%d"%(rowcount,columncount))
+        insert_end=textarea.index(INSERT)
+        insert_end=str(eval(insert_end+"+"+("0."+str(len(find_text)))))
+        insert_end=str(round(float(insert_end),1))
+        textarea.tag_add("found",INSERT,insert_end)
+        textarea.tag_configure("found",background="#D9E310",foreground="black")
     find_entry=Entry(findbox,width=40)
     find_submit=Button(findbox,text="Find",width=5,command=find)
     find_next=Button(findbox,text="Find next")
