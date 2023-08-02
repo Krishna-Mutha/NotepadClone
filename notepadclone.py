@@ -119,12 +119,13 @@ def customquit():
             confirm_save.title("Confirm Exit")
             confirm_save.mainloop()
 def storekey(event):
-    if(event.char!=''):
+    if(event.char!='' or event.keysym in ['BackSpace','Delete']):
         global inputid
         inputid+=1
         undotext=textarea.get(1.0,END)
         undotext=undotext.rstrip("\n")
         userinput[inputid]=undotext
+        redoinput.clear()
     if(len(userinput)>150):
         del userinput[min(userinput)]
 def undo():
@@ -136,7 +137,7 @@ def undo():
         textarea.insert(1.0,undochar.rstrip("\n"))
         redoinput[redoid]=undochar
         del userinput[max(userinput)]
-        if(len(redoinput)>200):
+        if(len(redoinput)>150):
             del redoinput[min(redoinput)]
 def undoevent(event):
     global redoid
@@ -184,6 +185,30 @@ def paste():
     textarea.insert(INSERT,clipboard)
 def delete():
     textarea.delete(SEL_FIRST,SEL_LAST)
+def findwindow():
+    findbox=Tk()
+    def find():
+        maintext=textarea.get(1.0,END)
+        find_text=find_entry.get()
+        rowcount=1
+        columncount=0
+        for i in maintext.split("\n"):
+            if(find_text in i):
+                columncount=i.find(find_text)
+                break
+            else:
+                rowcount+=1
+        textarea.focus_force()
+        textarea.mark_set("insert","%d.%d"%(rowcount,columncount))
+    find_entry=Entry(findbox,width=40)
+    find_submit=Button(findbox,text="Find",width=5,command=find)
+    find_next=Button(findbox,text="Find next")
+    find_entry.place(relx=0.3,rely=0.5,anchor=CENTER)
+    find_submit.place(relx=0.65,rely=0.5,anchor=CENTER)
+    find_next.place(relx=0.8,rely=0.5,anchor=CENTER)
+    findbox.geometry("500x50")
+    findbox.resizable(False,False)
+    findbox.mainloop()
 menubar=Menu(r)
 filemenu=Menu(menubar,tearoff=0)
 filemenu.add_command(label="Open",command=openfile)
@@ -200,7 +225,7 @@ editmenu.add_command(label="Copy",command=copy)
 editmenu.add_command(label="Paste",command=paste)
 editmenu.add_command(label="Delete",command=delete)
 editmenu.add_separator()
-editmenu.add_command(label="Find")
+editmenu.add_command(label="Find",command=findwindow)
 editmenu.add_command(label="Replace")
 infomenu=Menu(menubar,tearoff=0)
 infomenu.add_command(label="Source Code")
