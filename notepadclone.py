@@ -173,6 +173,11 @@ def paste():
 def delete():
     textarea.delete(SEL_FIRST,SEL_LAST)
 def findwindow():
+    try:
+        del index_start
+        del index_end
+    except:
+        pass
     findbox=Tk()
     def find():
         global index_start
@@ -189,7 +194,6 @@ def findwindow():
             index_end='%s+%dc'%(index_start,len(find_text))
             textarea.tag_add("found",index_start,index_end)
             textarea.tag_configure("found",background="#D9E310",foreground="black")
-            print("Find")
         else:
             mg.showerror("Error","Text not found")
     def findnext():
@@ -210,7 +214,6 @@ def findwindow():
                 print(index_end)
                 textarea.tag_add("found",index_start,index_end)
                 textarea.tag_configure("found",background="#D9E310",foreground="black")
-                print("FindNext")
             else:
                 mg.showerror("Error","Text not found")
         except:
@@ -227,8 +230,127 @@ def findwindow():
 def find_short(event):
     findwindow()
 def replace():
+    try:
+        del index_start
+        del index_end
+    except:
+        pass
     repwin=Tk()
-    repwin.geometry("500x50")
+    def find():
+        global index_start
+        global index_end
+        find_text=find_entry.get()
+        index_start=textarea.search(find_text,1.0,END)
+        if(index_start!=''):
+            try:
+                textarea.tag_delete("found")
+            except:
+                pass
+            textarea.focus_force()
+            textarea.mark_set("insert",index_start)
+            index_end='%s+%dc'%(index_start,len(find_text))
+            textarea.tag_add("found",index_start,index_end)
+            textarea.tag_configure("found",background="#D9E310",foreground="black")
+        else:
+            mg.showerror("Error","Text not found")
+    def findnext():
+        global index_start
+        global index_end
+        find_text=find_entry.get()
+        try:
+            index_start
+            index_start=textarea.search(find_text,index_end,END)
+            if(index_start!=''):
+                try:
+                    textarea.tag_delete("found")
+                except:
+                    pass
+                textarea.focus_force()
+                textarea.mark_set("insert",index_start)
+                index_end='%s+%dc'%(index_start,len(find_text))
+                print(index_end)
+                textarea.tag_add("found",index_start,index_end)
+                textarea.tag_configure("found",background="#D9E310",foreground="black")
+            else:
+                mg.showerror("Error","Text not found")
+        except:
+            find()
+    def repsub():
+        global index_end,index_start
+        reptext=rep_entry.get()
+        findtext=find_entry.get()
+        try:
+            index_end
+            if(index_start!=''):
+                other_maintext=textarea.get(1.0,index_start)
+                maintext=textarea.get(index_start,END)
+                alt_main=maintext
+                maintext=maintext.replace(findtext,reptext,1)
+            else:
+                index_start=textarea.search(findtext,1.0,END)
+                if(index_start!=''):
+                    index_end='%s+%dc'%(index_start,len(findtext))
+                else:
+                    mg.showerror("Error","Text not found")
+                maintext=textarea.get(index_start,END)
+                alt_main=maintext
+                maintext=maintext.replace(findtext,reptext,1)
+            if(alt_main!=maintext):
+                maintext=other_maintext+maintext
+                textarea.delete(1.0,END)
+                textarea.insert(1.0,maintext)
+                textarea.focus_force()
+                mg.showinfo("Success","Replaced all text successfully")
+            else:
+                mg.showerror("Error","Text not found")
+        except:
+            index_start=textarea.search(findtext,1.0,END)
+            if(index_start!=''):
+                index_end='%s+%dc'%(index_start,len(findtext))
+                other_maintext=textarea.get(1.0,index_start)
+                maintext=textarea.get(index_start,END)
+                alt_main=maintext
+                maintext=maintext.replace(findtext,reptext,1)
+                if(alt_main!=maintext):
+                    maintext=other_maintext+maintext
+                    textarea.delete(1.0,END)
+                    textarea.insert(1.0,maintext)
+                    textarea.focus_force()
+                    mg.showinfo("Success","Replaced all text successfully")
+                else:
+                    mg.showerror("Error","Text not found")
+            else:
+                mg.showerror("Error","Text not found")
+    def repsuball():
+        reptext=rep_entry.get()
+        maintext=textarea.get(1.0,END)
+        alt_main=maintext
+        findtext=find_entry.get()
+        maintext=maintext.replace(findtext,reptext)
+        if(alt_main!=maintext):
+            textarea.delete(1.0,END)
+            textarea.insert(1.0,maintext)
+            textarea.focus_force()
+            mg.showinfo("Success","Replaced all text successfully")
+        else:
+            mg.showerror("Error","Text not found")
+    find_entry=Entry(repwin,width=40)
+    rep_entry=Entry(repwin,width=40)
+    repsubmit=Button(repwin,text="Replace",width=8,command=repsub)
+    repsubmitall=Button(repwin,text="Replace All",width=8,command=repsuball)
+    findlabel=Label(repwin,text="Find:")
+    replabel=Label(repwin,text='Replace:')
+    find_submit=Button(repwin,text="Find",width=5,command=find)
+    find_next=Button(repwin,text="Find next",command=findnext)
+    find_submit.place(relx=0.627,rely=0.3,anchor=CENTER)
+    find_next.place(relx=0.8,rely=0.3,anchor=CENTER)
+    findlabel.place(relx=0.05,rely=0.1,anchor=W)
+    find_entry.place(relx=0.3,rely=0.3,anchor=CENTER)
+    replabel.place(relx=0.05,rely=0.5,anchor=W)
+    rep_entry.place(relx=0.3,rely=0.7,anchor=CENTER)
+    repsubmit.place(relx=0.65,rely=0.7,anchor=CENTER)
+    repsubmitall.place(relx=0.8,rely=0.7,anchor=CENTER)
+    repwin.geometry("500x100")
     repwin.resizable(False,False)
     repwin.mainloop()
 menubar=Menu(r)
