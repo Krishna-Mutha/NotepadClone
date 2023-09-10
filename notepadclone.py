@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import filedialog as fd
+from tkinter import messagebox as mg
 r=Tk()
 global userinput,maintext,redoinput,redoid,copytext,cuttext
 inputid=0
@@ -119,15 +120,17 @@ def customquit():
             confirm_save.title("Confirm Exit")
             confirm_save.mainloop()
 def storekey(event):
-    if(event.char!='' or event.keysym in ['BackSpace','Delete']):
-        global inputid
-        inputid+=1
-        undotext=textarea.get(1.0,END)
-        undotext=undotext.rstrip("\n")
-        userinput[inputid]=undotext
-        redoinput.clear()
-    if(len(userinput)>150):
-        del userinput[min(userinput)]
+    textarea.tag_delete("found")
+    if(event.state!=12):
+        if(event.char!='' or event.keysym in ['BackSpace','Delete']):
+            global inputid
+            inputid+=1
+            undotext=textarea.get(1.0,END)
+            undotext=undotext.rstrip("\n")
+            userinput[inputid]=undotext
+            redoinput.clear()
+        if(len(userinput)>150):
+            del userinput[min(userinput)]
 def undo():
     global redoid
     redoid+=1
@@ -188,26 +191,49 @@ def delete():
 def findwindow():
     findbox=Tk()
     def find():
-        maintext=textarea.get(1.0,END)
+        global index_start
+        global index_end
         find_text=find_entry.get()
-        rowcount=1
-        columncount=0
-        for i in maintext.split("\n"):
-            if(find_text in i):
-                columncount=i.find(find_text)
-                break
+        index_start=textarea.search(find_text,1.0,END)
+        if(index_start!=''):
+            try:
+                textarea.tag_delete("found")
+            except:
+                pass
+            textarea.focus_force()
+            textarea.mark_set("insert",index_start)
+            index_end='%s+%dc'%(index_start,len(find_text))
+            textarea.tag_add("found",index_start,index_end)
+            textarea.tag_configure("found",background="#D9E310",foreground="black")
+            print("Find")
+        else:
+            mg.showerror("Error","Text not found")
+    def findnext():
+        global index_start
+        global index_end
+        find_text=find_entry.get()
+        try:
+            index_start
+            index_start=textarea.search(find_text,index_end,END)
+            if(index_start!=''):
+                try:
+                    textarea.tag_delete("found")
+                except:
+                    pass
+                textarea.focus_force()
+                textarea.mark_set("insert",index_start)
+                index_end='%s+%dc'%(index_start,len(find_text))
+                print(index_end)
+                textarea.tag_add("found",index_start,index_end)
+                textarea.tag_configure("found",background="#D9E310",foreground="black")
+                print("FindNext")
             else:
-                rowcount+=1
-        textarea.focus_force()
-        textarea.mark_set("insert","%d.%d"%(rowcount,columncount))
-        insert_end=textarea.index(INSERT)
-        insert_end=str(eval(insert_end+"+"+("0."+str(len(find_text)))))
-        insert_end=str(round(float(insert_end),1))
-        textarea.tag_add("found",INSERT,insert_end)
-        textarea.tag_configure("found",background="#D9E310",foreground="black")
+                mg.showerror("Error","Text not found")
+        except:
+            find()
     find_entry=Entry(findbox,width=40)
     find_submit=Button(findbox,text="Find",width=5,command=find)
-    find_next=Button(findbox,text="Find next")
+    find_next=Button(findbox,text="Find next",command=findnext)
     find_entry.place(relx=0.3,rely=0.5,anchor=CENTER)
     find_submit.place(relx=0.65,rely=0.5,anchor=CENTER)
     find_next.place(relx=0.8,rely=0.5,anchor=CENTER)
