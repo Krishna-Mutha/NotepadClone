@@ -143,16 +143,7 @@ def undo():
         if(len(redoinput)>150):
             del redoinput[min(redoinput)]
 def undoevent(event):
-    global redoid
-    redoid+=1
-    if(userinput!={}):
-        redoinput[redoid]=textarea.get(1.0,END).strip("\n")
-        undochar=userinput[max(userinput)]
-        textarea.delete(1.0,END)
-        textarea.insert(1.0,undochar.rstrip("\n"))
-        del userinput[max(userinput)]
-        if(len(redoinput)>200):
-            del redoinput[min(redoinput)]
+    undo()
 def redo():
     global inputid
     if(redoinput!={}):
@@ -163,14 +154,7 @@ def redo():
         userinput[inputid]=redochar
         del redoinput[max(redoinput)]
 def redoevent(event):
-    global inputid
-    if(redoinput!={}):
-        redochar=redoinput[max(redoinput)]
-        textarea.delete(1.0,END)
-        textarea.insert(1.0,redochar)
-        inputid+=1
-        userinput[inputid]=redochar
-        del redoinput[max(redoinput)]
+    redo()
 def cut():
     cuttext=textarea.get(SEL_FIRST,SEL_LAST)
     cuttext=cuttext.rstrip("\n")
@@ -240,6 +224,13 @@ def findwindow():
     findbox.geometry("500x50")
     findbox.resizable(False,False)
     findbox.mainloop()
+def find_short(event):
+    findwindow()
+def replace():
+    repwin=Tk()
+    repwin.geometry("500x50")
+    repwin.resizable(False,False)
+    repwin.mainloop()
 menubar=Menu(r)
 filemenu=Menu(menubar,tearoff=0)
 filemenu.add_command(label="Open",command=openfile)
@@ -257,7 +248,7 @@ editmenu.add_command(label="Paste",command=paste)
 editmenu.add_command(label="Delete",command=delete)
 editmenu.add_separator()
 editmenu.add_command(label="Find",command=findwindow)
-editmenu.add_command(label="Replace")
+editmenu.add_command(label="Replace",command=replace)
 infomenu=Menu(menubar,tearoff=0)
 infomenu.add_command(label="Source Code")
 infomenu.add_command(label="About")
@@ -271,6 +262,7 @@ textarea.pack()
 textarea.bind("<Key>",storekey)
 textarea.bind("<Control-z>",undoevent)
 textarea.bind("<Control-y>",redoevent)
+textarea.bind("<Control-f>",find_short)
 r.title("Notepad Clone")
 r.geometry('900x500')
 r.mainloop()
