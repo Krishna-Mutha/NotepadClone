@@ -1,13 +1,14 @@
 from tkinter import *
 from tkinter import filedialog as fd
 from tkinter import messagebox as mg
+import webbrowser as wb
 r=Tk()
 global userinput,maintext,redoinput,redoid,copytext,cuttext
 inputid=0
 redoid=0
 userinput={}
 redoinput={}
-#Function to adjust textbox size to always match the window size
+#Adjust textbox size to always match the window size
 def text_adjust(event):
     global textarea
     main_geometry=r.geometry()
@@ -15,7 +16,7 @@ def text_adjust(event):
     main_geometry=main_geometry[0]
     main_geometry=main_geometry.split('x')
     textarea.config(width=main_geometry[0],height=main_geometry[1])
-#Function to open the file and replace textbox text
+#Open the file and replace textbox text
 def openfile():
     global filename
     f=fd.askopenfile(mode='r+',filetypes=[('Text File','.txt')],initialdir='/')
@@ -25,16 +26,18 @@ def openfile():
         textarea.insert(1.0,maintext)
         filename=f.name
         f.close()
-#Function to save the text to a file
+#Save the text to a file
 def savefile():
     maintext=textarea.get(1.0,END)
     maintext=maintext.rstrip()
+    #Check if a file is already is opened, then save to that
     try:
         filename
         f=open(filename,'w')
         f.write(maintext)
         f.close()
     except:
+        #If no file is opened, ask user to save it as a file somewhere
         try:
             file_name=fd.asksaveasfilename(defaultextension='.txt',filetypes=[('Text File','.txt'),('HTML','.html'),('All Files','.*')])
             f=open(file_name,'w')
@@ -42,26 +45,35 @@ def savefile():
             f.close()
         except:
             pass
+#Save as function
 def saveasfile():
-    maintext=textarea.get(1.0,END)
-    maintext=maintext.rstrip()
-    filename=fd.asksaveasfilename(defaultextension='.txt',filetypes=[('Text File','.txt'),('HTML','.html'),('All Files','.*')])
-    f=open(filename,'w')
-    f.write(maintext)
-    f.close()
+    try:
+        maintext=textarea.get(1.0,END)
+        maintext=maintext.rstrip()
+        filename=fd.asksaveasfilename(defaultextension='.txt',filetypes=[('Text File','.txt'),('HTML','.html'),('All Files','.*')])
+        f=open(filename,'w')
+        f.write(maintext)
+        f.close()
+    except:
+        pass
+#Exit function
 def customquit():
     maintext=textarea.get(1.0,END)
     try:
+        #Check if a file is opened
         global filename
         filename
         f=open(filename,'r')
         filetext=f.read()
         f.close()
+        #Check if any changes are made to file content in the notepad
         maintext=maintext.rstrip("\n")
         filetext=filetext.rstrip("\n")
+        #If no changes are made, close the app
         if(filetext==maintext):
             r.destroy()
         else:
+            #Open a confirm save dialog box if changes have been made
             confirm_save=Tk()
             def confirmdontsave():
                 confirm_save.destroy()
@@ -86,11 +98,14 @@ def customquit():
             confirm_save.resizable(False,False)
             confirm_save.title("Confirm Exit")
             confirm_save.mainloop()
+    #If no file is opened
     except:
+        #If no content has been written, then close instantly
         alt_maintext=maintext.strip()
         if(alt_maintext==''):
             r.destroy()
         else:
+            #Confirm save dialog box if content has been written
             confirm_save=Tk()
             def confirmdontsave():
                 confirm_save.destroy()
@@ -119,9 +134,12 @@ def customquit():
             confirm_save.resizable(False,False)
             confirm_save.title("Confirm Exit")
             confirm_save.mainloop()
+#A dictionary to store previous iterations of the content written for every key pressed
 def storekey(event):
     textarea.tag_delete("found")
+    #Check if key is being held down
     if(event.state!=12):
+        #Check if actual content is being written into the notepad
         if(event.char!='' or event.keysym in ['BackSpace','Delete']):
             global inputid
             inputid+=1
@@ -131,6 +149,7 @@ def storekey(event):
             redoinput.clear()
         if(len(userinput)>150):
             del userinput[min(userinput)]
+#Undo function
 def undo():
     global redoid
     redoid+=1
@@ -142,8 +161,10 @@ def undo():
         del userinput[max(userinput)]
         if(len(redoinput)>150):
             del redoinput[min(redoinput)]
+#Calling undo function using shortcut keys
 def undoevent(event):
     undo()
+#Redo function
 def redo():
     global inputid
     if(redoinput!={}):
@@ -153,25 +174,34 @@ def redo():
         inputid+=1
         userinput[inputid]=redochar
         del redoinput[max(redoinput)]
+#Calling redo function using shortcut keys
 def redoevent(event):
     redo()
+#Cut function
 def cut():
-    cuttext=textarea.get(SEL_FIRST,SEL_LAST)
-    cuttext=cuttext.rstrip("\n")
-    textarea.delete(SEL_FIRST,SEL_LAST)
-    r.clipboard_append(cuttext)
-    r.update()
+    try:
+        cuttext=textarea.get(SEL_FIRST,SEL_LAST)
+        cuttext=cuttext.rstrip("\n")
+        textarea.delete(SEL_FIRST,SEL_LAST)
+        r.clipboard_append(cuttext)
+        r.update()
+    except:
+        pass
+#Copy function
 def copy():
     copytext=textarea.get(SEL_FIRST,SEL_LAST)
     copytext=copytext.rstrip("\n")
     r.clipboard_append(copytext)
     r.update()
+#Paste function
 def paste():
     clipboard=r.clipboard_get()
     clipboard=clipboard.rstrip("\n")
     textarea.insert(INSERT,clipboard)
+#Delete function
 def delete():
     textarea.delete(SEL_FIRST,SEL_LAST)
+#Find Function
 def findwindow():
     try:
         del index_start
@@ -226,9 +256,11 @@ def findwindow():
     find_next.place(relx=0.8,rely=0.5,anchor=CENTER)
     findbox.geometry("500x50")
     findbox.resizable(False,False)
+    findbox.title("Find")
     findbox.mainloop()
 def find_short(event):
     findwindow()
+#Replace function
 def replace():
     try:
         del index_start
@@ -352,7 +384,20 @@ def replace():
     repsubmitall.place(relx=0.8,rely=0.7,anchor=CENTER)
     repwin.geometry("500x100")
     repwin.resizable(False,False)
+    repwin.title("Find and Replace")
     repwin.mainloop()
+def sourcecode():
+    s=Tk()
+    def callback(event):
+        wb.open_new_tab("https://github.com/Krishna-Mutha/NotepadClone")
+    Label(s,text="You can find the source code for this project on my github page!").place(relx=0.5,rely=0.2,anchor=CENTER)
+    link=Label(s,text="https://github.com/Krishna-Mutha/NotepadClone",fg='blue',cursor="hand2")
+    link.place(relx=0.5,rely=0.5,anchor=CENTER)
+    link.bind("<Button-1>",callback)
+    s.resizable(False,False)
+    s.geometry("400x100")
+    s.title("Source Code")
+    s.mainloop()
 menubar=Menu(r)
 filemenu=Menu(menubar,tearoff=0)
 filemenu.add_command(label="Open",command=openfile)
@@ -372,8 +417,7 @@ editmenu.add_separator()
 editmenu.add_command(label="Find",command=findwindow)
 editmenu.add_command(label="Replace",command=replace)
 infomenu=Menu(menubar,tearoff=0)
-infomenu.add_command(label="Source Code")
-infomenu.add_command(label="About")
+infomenu.add_command(label="Source Code",command=sourcecode)
 menubar.add_cascade(label='File',menu=filemenu)
 menubar.add_cascade(label="Edit",menu=editmenu)
 menubar.add_cascade(label="Info",menu=infomenu)
