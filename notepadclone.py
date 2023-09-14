@@ -6,6 +6,7 @@ r=Tk()
 global userinput,maintext,redoinput,redoid,copytext,cuttext
 inputid=0
 redoid=0
+darkmode=True
 userinput={}
 redoinput={}
 #Adjust textbox size to always match the window size
@@ -398,11 +399,30 @@ def sourcecode():
     s.geometry("400x100")
     s.title("Source Code")
     s.mainloop()
+def toggle():
+    global darkmode
+    darkmode=not darkmode
+    if(darkmode):
+        textarea.config(bg="#161414",fg="white")
+        menubar.config(bg="#262222",fg="white")
+        filemenu.config(bg="#262222",fg="white")
+        editmenu.config(bg="#262222",fg="white")
+        infomenu.config(bg="#262222",fg="white")
+        filemenu.entryconfig(4,label="Light Mode")
+    else:
+        textarea.config(bg="white",fg="black")
+        menubar.config(bg="#DCCBCB",fg="black")
+        filemenu.config(bg="#DCCBCB",fg="black")
+        editmenu.config(bg="#DCCBCB",fg="black")
+        infomenu.config(bg="#DCCBCB",fg="black")
+        filemenu.entryconfig(4,label="Dark Mode")
 menubar=Menu(r)
 filemenu=Menu(menubar,tearoff=0)
 filemenu.add_command(label="Open",command=openfile)
 filemenu.add_command(label="Save",command=savefile)
 filemenu.add_command(label="Save As",command=saveasfile)
+filemenu.add_separator()
+filemenu.add_command(label="Light Mode",command=toggle)
 filemenu.add_separator()
 filemenu.add_command(label="Exit",command=customquit)
 editmenu=Menu(menubar,tearoff=0)
@@ -422,13 +442,18 @@ menubar.add_cascade(label='File',menu=filemenu)
 menubar.add_cascade(label="Edit",menu=editmenu)
 menubar.add_cascade(label="Info",menu=infomenu)
 r.config(menu=menubar)
+menubar.config(bg="#262222",fg="white")
+filemenu.config(bg="#262222",fg="white")
+editmenu.config(bg="#262222",fg="white")
+infomenu.config(bg="#262222",fg="white")
 r.bind('<Configure>',text_adjust)
-textarea=Text(r,borderwidth=0)
+textarea=Text(r,borderwidth=0,font=("Calibri",14))
 textarea.pack()
 textarea.bind("<Key>",storekey)
 textarea.bind("<Control-z>",undoevent)
 textarea.bind("<Control-y>",redoevent)
 textarea.bind("<Control-f>",find_short)
+textarea.config(bg="#161414",fg="white")
 r.title("Notepad Clone")
 r.geometry('900x500')
 r.mainloop()
