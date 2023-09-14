@@ -382,7 +382,7 @@ def replace():
     rep_entry.place(relx=0.3,rely=0.7,anchor=CENTER)
     repsubmit.place(relx=0.65,rely=0.7,anchor=CENTER)
     repsubmitall.place(relx=0.8,rely=0.7,anchor=CENTER)
-    repwin.geometry("500x100")
+    repwin.geometry("650x120")
     repwin.resizable(False,False)
     repwin.title("Find and Replace")
     repwin.mainloop()
