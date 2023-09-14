@@ -6,7 +6,6 @@ r=Tk()
 global userinput,maintext,redoinput,redoid,copytext,cuttext
 inputid=0
 redoid=0
-darkmode=True
 userinput={}
 redoinput={}
 #Adjust textbox size to always match the window size
@@ -383,7 +382,7 @@ def replace():
     rep_entry.place(relx=0.3,rely=0.7,anchor=CENTER)
     repsubmit.place(relx=0.65,rely=0.7,anchor=CENTER)
     repsubmitall.place(relx=0.8,rely=0.7,anchor=CENTER)
-    repwin.geometry("650x120")
+    repwin.geometry("500x100")
     repwin.resizable(False,False)
     repwin.title("Find and Replace")
     repwin.mainloop()
@@ -399,23 +398,6 @@ def sourcecode():
     s.geometry("400x100")
     s.title("Source Code")
     s.mainloop()
-def toggle():
-    global darkmode
-    darkmode=not darkmode
-    if(darkmode):
-        textarea.config(bg="#161414",fg="white")
-        menubar.config(bg="#262222",fg="white")
-        filemenu.config(bg="#262222",fg="white")
-        editmenu.config(bg="#262222",fg="white")
-        infomenu.config(bg="#262222",fg="white")
-        filemenu.entryconfig(4,label="Light Mode")
-    else:
-        textarea.config(bg="white",fg="black")
-        menubar.config(bg="#DCCBCB",fg="black")
-        filemenu.config(bg="#DCCBCB",fg="black")
-        editmenu.config(bg="#DCCBCB",fg="black")
-        infomenu.config(bg="#DCCBCB",fg="black")
-        filemenu.entryconfig(4,label="Dark Mode")
 menubar=Menu(r)
 filemenu=Menu(menubar,tearoff=0)
 filemenu.add_command(label="Open",command=openfile)
@@ -435,25 +417,20 @@ editmenu.add_command(label="Paste",command=paste)
 editmenu.add_command(label="Delete",command=delete)
 editmenu.add_separator()
 editmenu.add_command(label="Find",command=findwindow)
-editmenu.add_command(label="Find & Replace",command=replace)
+editmenu.add_command(label="Replace",command=replace)
 infomenu=Menu(menubar,tearoff=0)
 infomenu.add_command(label="Source Code",command=sourcecode)
 menubar.add_cascade(label='File',menu=filemenu)
 menubar.add_cascade(label="Edit",menu=editmenu)
 menubar.add_cascade(label="Info",menu=infomenu)
 r.config(menu=menubar)
-menubar.config(bg="#262222",fg="white")
-filemenu.config(bg="#262222",fg="white")
-editmenu.config(bg="#262222",fg="white")
-infomenu.config(bg="#262222",fg="white")
 r.bind('<Configure>',text_adjust)
-textarea=Text(r,borderwidth=0,font=("Calibri",14))
+textarea=Text(r,borderwidth=0)
 textarea.pack()
 textarea.bind("<Key>",storekey)
 textarea.bind("<Control-z>",undoevent)
 textarea.bind("<Control-y>",redoevent)
 textarea.bind("<Control-f>",find_short)
-textarea.config(bg="#161414",fg="white")
 r.title("Notepad Clone")
 r.geometry('900x500')
 r.mainloop()
