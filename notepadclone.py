@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog as fd
 from tkinter import messagebox as mg
 import webbrowser as wb
+import platform
 r=Tk()
 global userinput,maintext,redoinput,redoid,copytext,cuttext
 inputid=0
@@ -409,15 +410,22 @@ def toggle():
         editmenu.config(bg="#262222",fg="white")
         infomenu.config(bg="#262222",fg="white")
         filemenu.entryconfig(4,label="Light Mode")
-    else:
+    elif(platform.system()=="Linux"):
         textarea.config(bg="white",fg="black")
         menubar.config(bg="#DCCBCB",fg="black")
         filemenu.config(bg="#DCCBCB",fg="black")
         editmenu.config(bg="#DCCBCB",fg="black")
         infomenu.config(bg="#DCCBCB",fg="black")
         filemenu.entryconfig(4,label="Dark Mode")
-menubar=Menu(r)
-filemenu=Menu(menubar,tearoff=0)
+    else:
+        textarea.config(bg="white",fg="black")
+        menubar.config(bg="white",fg="black")
+        filemenu.config(bg="white",fg="black")
+        editmenu.config(bg="white",fg="black")
+        infomenu.config(bg="white",fg="black")
+        filemenu.entryconfig(4,label="Dark Mode")
+menubar=Menu(r,activeborderwidth=0)
+filemenu=Menu(menubar,tearoff=0,activeborderwidth=0)
 filemenu.add_command(label="Open",command=openfile)
 filemenu.add_command(label="Save",command=savefile)
 filemenu.add_command(label="Save As",command=saveasfile)
